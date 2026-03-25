@@ -51,7 +51,7 @@ vercel-ship/
 ├── README.md
 ├── README.zh-CN.md
 ├── LICENSE
-├── docs/
+├── .env.example
 ├── agents/
 ├── assets/
 │   ├── demo-docs/
@@ -61,60 +61,48 @@ vercel-ship/
 └── scripts/
 ```
 
-## 使用方式
+## 如何使用
 
-这个仓库有两种使用方式：
+这个仓库默认就是作为 Codex skill 使用。
 
-- `script mode`：直接运行仓库内置的 Node.js 脚本
-- `skill mode`：把仓库安装成 Codex skill，让 agent 结合文档、脚本和 MCP 执行
+典型流程：
 
-第一次使用建议先看 [docs/getting-started.md](docs/getting-started.md)。
+1. 把 `vercel-ship` 安装到你的 Codex skills 目录
+2. 先准备好需要的 MCP 和凭证
+3. 让 agent 使用 `vercel-ship`，并给它项目路径或 demo 文档
+4. 审阅它生成的方案
+5. 批准方案
+6. 让 agent 继续执行 GitHub 和 Vercel 动作
 
 ## 运行要求
 
 - Node.js `20+`
-- 具备仓库写权限的 GitHub access token
-- Vercel access token
-- 一个可创建项目和集成的 Vercel team 或个人 scope
+- 一个支持本地 skills 的 Codex 环境
+- 一个可创建仓库的 GitHub 账号
+- 一个可创建项目和集成的 Vercel 账号或团队
 
-## 环境变量
+## 需要手动准备的前置条件
 
-执行云端动作时需要：
+在你准备让 skill 执行真实云端动作前，需要用户手动准备：
 
-- `GITHUB_TOKEN`
-- `GITHUB_OWNER` 或 `--owner`
-- `VERCEL_TOKEN`
-- `VERCEL_TEAM_ID`
+- 配置好 `GitHub MCP`
+- 配置好 `Vercel MCP`
+- 在 agent 使用的 shell 环境中提供这些环境变量：
+  - `GITHUB_TOKEN`
+  - `GITHUB_OWNER`
+  - `VERCEL_TOKEN`
+  - `VERCEL_TEAM_ID`
+- 如果你的 Vercel CLI 集成流程需要，也提供：
+  - `VERCEL_SCOPE`
 
-可选：
-
-- `VERCEL_SCOPE`
-
-建议直接使用仓库里的模板：
-
-```bash
-cp .env.example .env.local
-export $(grep -v '^#' .env.local | xargs)
-```
-
-这些变量分别用于：
-
-- `GITHUB_TOKEN`：供 `ship_demo_to_cloud.mjs` 创建仓库并提交 starter 文件
-- `GITHUB_OWNER`：目标 GitHub 用户或组织
-- `VERCEL_TOKEN`：供 Vercel API 和 CLI 动作使用
-- `VERCEL_TEAM_ID`：目标 Vercel team id 或个人 scope id
-- `VERCEL_SCOPE`：供 Vercel CLI 集成命令使用的 team slug 或 scope 名称
+仓库里提供了 [.env.example](.env.example) 作为模板，但具体值需要你在本地自行填写。
 
 ## 需要哪些 MCP
-
-如果你只是直接运行脚本，不需要 MCP。
-
-如果你希望 agent 走完整的“分析 -> 方案 -> 审批 -> GitHub -> Vercel -> 验证”链路，建议配置：
 
 - `GitHub MCP`
 - `Vercel MCP`
 
-具体说明见 [docs/mcp-requirements.md](docs/mcp-requirements.md)。
+当前第一版只依赖这两个 MCP。
 
 ## 安装
 
@@ -124,85 +112,22 @@ export $(grep -v '^#' .env.local | xargs)
 npm install
 ```
 
-仓库不会提交 `node_modules`。
+仓库不会提交 `node_modules`。把这个仓库安装或复制到 Codex skills 目录后，就可以直接通过名字触发。
 
-## 快速开始
+## 用户需要提供什么
 
-1. 安装依赖：
+最少提供以下任一输入：
 
-```bash
-npm install
-```
+- 一个项目路径
+- 一个设计文档或 PRD 路径
+- 一个位于 `assets/demo-docs` 下的 demo 文档
 
-2. 配置环境变量：
+如果要执行云端动作，用户还需要准备好批准：
 
-```bash
-cp .env.example .env.local
-export $(grep -v '^#' .env.local | xargs)
-```
-
-3. 执行本地验证：
-
-```bash
-npm run validate:local
-```
-
-4. 生成方案：
-
-```bash
-node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/marketing-site.md
-```
-
-5. 准备好执行云端动作后，发布 demo starter：
-
-```bash
-node scripts/ship_demo_to_cloud.mjs \
-  --doc assets/demo-docs/marketing-site.md \
-  --owner "$GITHUB_OWNER" \
-  --repo vercel-ship-demo-marketing \
-  --project vercel-ship-demo-marketing
-```
-
-## 本地使用
-
-根据 demo 文档生成推荐方案：
-
-```bash
-node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/saas-mvp.md
-```
-
-生成审批摘要：
-
-```bash
-node scripts/render_approval_plan.mjs --plan /tmp/vercel-ship-validation/marketing-site.plan.json
-```
-
-执行所有 demo 的本地验证：
-
-```bash
-node scripts/run_demo_validation.mjs
-```
-
-为一个已存在的 Vercel 项目开通资源：
-
-```bash
-node scripts/provision_resources.mjs \
-  --project-id <vercel-project-id> \
-  --project-name <vercel-project-name> \
-  --scope <vercel-scope> \
-  --capability neon \
-  --capability clerk
-```
-
-把一个 demo starter 发布到 GitHub 和 Vercel：
-
-```bash
-node scripts/ship_demo_to_cloud.mjs \
-  --doc assets/demo-docs/marketing-site.md \
-  --owner <github-owner> \
-  --repo <github-repo-name> \
-  --project <vercel-project-name>
-```
+- 创建 GitHub 仓库
+- 发布代码到 GitHub
+- 创建 Vercel 项目
+- 在需要时开通 Vercel 资源
 
 ## Demo 场景
 
@@ -248,10 +173,3 @@ node scripts/ship_demo_to_cloud.mjs \
 ## 许可证
 
 MIT，见 [LICENSE](LICENSE)。
-
-## 补充文档
-
-- [docs/getting-started.md](docs/getting-started.md)
-- [docs/mcp-requirements.md](docs/mcp-requirements.md)
-- [docs/command-reference.md](docs/command-reference.md)
-- [docs/troubleshooting.md](docs/troubleshooting.md)

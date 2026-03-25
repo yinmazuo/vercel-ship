@@ -51,7 +51,7 @@ vercel-ship/
 ├── README.md
 ├── README.zh-CN.md
 ├── LICENSE
-├── docs/
+├── .env.example
 ├── agents/
 ├── assets/
 │   ├── demo-docs/
@@ -61,62 +61,50 @@ vercel-ship/
 └── scripts/
 ```
 
-## Usage Modes
+## How To Use
 
-You can use this repository in two ways:
+This repository is meant to be used as a Codex skill.
 
-- `script mode`: run the bundled Node.js scripts directly
-- `skill mode`: install the repository as a Codex skill and let the agent use the bundled references and scripts
+Typical flow:
 
-For first-time setup, start with [docs/getting-started.md](docs/getting-started.md).
+1. install `vercel-ship` into your Codex skills directory
+2. prepare the required MCPs and credentials
+3. ask the agent to use `vercel-ship` with your project path or a demo doc
+4. review the generated plan
+5. approve the plan
+6. let the agent continue into GitHub and Vercel actions
 
 ## Requirements
 
 - Node.js `20+`
-- GitHub access token with repository write permission
-- Vercel access token
-- A Vercel team or personal scope where projects and integrations can be created
+- a Codex environment that supports local skills
+- a GitHub account that can create repositories
+- a Vercel account or team that can create projects and integrations
 
-## Environment Variables
+## Manual Prerequisites
 
-Required environment variables for cloud actions:
+Before you use the skill for real cloud actions, prepare these items manually:
 
-- `GITHUB_TOKEN`
-- `GITHUB_OWNER` or `--owner`
-- `VERCEL_TOKEN`
-- `VERCEL_TEAM_ID`
+- configure `GitHub MCP`
+- configure `Vercel MCP`
+- provide these environment variables in the shell used by the agent:
+  - `GITHUB_TOKEN`
+  - `GITHUB_OWNER`
+  - `VERCEL_TOKEN`
+  - `VERCEL_TEAM_ID`
+- if your Vercel CLI integration flow needs it, also provide:
+  - `VERCEL_SCOPE`
 
-Optional:
+The repository includes [.env.example](.env.example) as a template, but you are expected to fill in your own values locally.
 
-- `VERCEL_SCOPE`
-
-Use the included template:
-
-```bash
-cp .env.example .env.local
-export $(grep -v '^#' .env.local | xargs)
-```
-
-Variable meaning:
-
-- `GITHUB_TOKEN`: used by `ship_demo_to_cloud.mjs` to create repositories and commit starter files
-- `GITHUB_OWNER`: target GitHub user or organization
-- `VERCEL_TOKEN`: used by Vercel API and CLI actions
-- `VERCEL_TEAM_ID`: target Vercel team id or personal scope id
-- `VERCEL_SCOPE`: team slug or scope name used by Vercel CLI integration commands
-
-## MCP Requirements
-
-For direct script execution, no MCP is required.
-
-For agent-driven end-to-end usage, configure:
+## Required MCPs
 
 - `GitHub MCP`
 - `Vercel MCP`
 
-See [docs/mcp-requirements.md](docs/mcp-requirements.md) for the exact split between script-only and agent-driven workflows.
+These are the only MCPs required for the current first version.
 
-## Install
+## Installation
 
 Install dependencies:
 
@@ -124,85 +112,24 @@ Install dependencies:
 npm install
 ```
 
-The repository intentionally does not vendor `node_modules`.
+The repository does not vendor `node_modules`.
 
-## Quick Start
+Install or copy the repository into your Codex skills directory as `vercel-ship`, then let the agent trigger it by name.
 
-1. Install dependencies:
+## What The User Needs To Provide
 
-```bash
-npm install
-```
+At minimum, the user should provide one of these:
 
-2. Configure environment variables:
+- a project path
+- a design doc or PRD path
+- a demo doc under `assets/demo-docs`
 
-```bash
-cp .env.example .env.local
-export $(grep -v '^#' .env.local | xargs)
-```
+For cloud execution, the user should also be ready to approve:
 
-3. Run local validation:
-
-```bash
-npm run validate:local
-```
-
-4. Generate a plan:
-
-```bash
-node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/marketing-site.md
-```
-
-5. Publish a demo starter when you are ready for cloud actions:
-
-```bash
-node scripts/ship_demo_to_cloud.mjs \
-  --doc assets/demo-docs/marketing-site.md \
-  --owner "$GITHUB_OWNER" \
-  --repo vercel-ship-demo-marketing \
-  --project vercel-ship-demo-marketing
-```
-
-## Local Usage
-
-Generate a recommended plan from a demo doc:
-
-```bash
-node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/saas-mvp.md
-```
-
-Render an approval summary:
-
-```bash
-node scripts/render_approval_plan.mjs --plan /tmp/vercel-ship-validation/marketing-site.plan.json
-```
-
-Run local validation for all demos:
-
-```bash
-node scripts/run_demo_validation.mjs
-```
-
-Provision resources for an existing Vercel project:
-
-```bash
-node scripts/provision_resources.mjs \
-  --project-id <vercel-project-id> \
-  --project-name <vercel-project-name> \
-  --scope <vercel-scope> \
-  --capability neon \
-  --capability clerk
-```
-
-Publish a demo starter to GitHub and Vercel:
-
-```bash
-node scripts/ship_demo_to_cloud.mjs \
-  --doc assets/demo-docs/marketing-site.md \
-  --owner <github-owner> \
-  --repo <github-repo-name> \
-  --project <vercel-project-name>
-```
+- GitHub repository creation
+- GitHub code publishing
+- Vercel project creation
+- Vercel resource provisioning when required
 
 ## Demo Scenarios
 
@@ -248,10 +175,3 @@ The first covers local validation. The second covers real GitHub, Vercel, Blob, 
 ## License
 
 MIT. See [LICENSE](LICENSE).
-
-## Additional Reading
-
-- [docs/getting-started.md](docs/getting-started.md)
-- [docs/mcp-requirements.md](docs/mcp-requirements.md)
-- [docs/command-reference.md](docs/command-reference.md)
-- [docs/troubleshooting.md](docs/troubleshooting.md)
