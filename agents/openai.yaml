@@ -1,0 +1,3 @@
+display_name: vercel-ship
+short_description: Choose starters and Vercel capabilities for web projects with rule-driven planning and approval-friendly release output.
+default_prompt: Generate a default GitHub + Vercel release plan from the current project or provided docs, choose an appropriate starter, and stop at analysis, validation, and local verification before approval.

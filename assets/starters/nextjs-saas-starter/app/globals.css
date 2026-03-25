@@ -1,0 +1,86 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f1720;
+  --panel: #17212c;
+  --panel-soft: #223040;
+  --ink: #f3f6fb;
+  --muted: #9cb0c4;
+  --accent: #e2ff65;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at top right, rgba(226, 255, 101, 0.14), transparent 30%),
+    linear-gradient(180deg, #0d141c 0%, #0f1720 100%);
+  color: var(--ink);
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+main {
+  min-height: 100vh;
+  padding: 28px;
+}
+
+.shell {
+  display: grid;
+  gap: 18px;
+}
+
+.hero,
+.panel,
+.metric {
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(23, 33, 44, 0.9);
+}
+
+.hero {
+  padding: 24px;
+}
+
+.hero p,
+.panel p {
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+}
+
+.metrics {
+  display: grid;
+  gap: 18px;
+}
+
+.metric,
+.panel {
+  padding: 20px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(226, 255, 101, 0.12);
+  color: var(--accent);
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 2fr 1fr;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

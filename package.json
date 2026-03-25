@@ -1,0 +1,34 @@
+{
+  "name": "vercel-ship",
+  "version": "1.0.0",
+  "description": "Open skill bundle for Codex-style agents that analyzes demo specs, recommends starters, provisions Vercel resources, and ships projects to GitHub and Vercel.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yinmazuo/vercel-ship.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yinmazuo/vercel-ship/issues"
+  },
+  "homepage": "https://github.com/yinmazuo/vercel-ship#readme",
+  "keywords": [
+    "codex-skill",
+    "vercel",
+    "github",
+    "deployment",
+    "starter",
+    "automation"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "validate:local": "node scripts/run_demo_validation.mjs",
+    "plan:marketing": "node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/marketing-site.md",
+    "plan:saas": "node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/saas-mvp.md",
+    "plan:upload": "node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/upload-app.md"
+  },
+  "dependencies": {
+    "vercel": "^50.37.0"
+  }
+}

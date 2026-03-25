@@ -1,0 +1,93 @@
+:root {
+  color-scheme: light;
+  --bg: #f4efe6;
+  --ink: #1d1b17;
+  --card: rgba(255, 255, 255, 0.7);
+  --accent: #c4552b;
+  --accent-soft: #f6cbbd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at top left, #fff4d6 0%, transparent 40%),
+    linear-gradient(135deg, #f4efe6 0%, #f4d4c8 100%);
+  color: var(--ink);
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+main {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 48px 24px 96px;
+}
+
+.hero {
+  display: grid;
+  gap: 24px;
+  padding: 28px;
+  border: 1px solid rgba(29, 27, 23, 0.08);
+  border-radius: 28px;
+  background: var(--card);
+  backdrop-filter: blur(14px);
+}
+
+.hero h1 {
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 0.95;
+  margin: 0;
+}
+
+.hero p {
+  max-width: 42rem;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.button {
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.button.primary {
+  background: var(--ink);
+  color: white;
+}
+
+.button.secondary {
+  border: 1px solid rgba(29, 27, 23, 0.15);
+  color: var(--ink);
+}
+
+.grid {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(29, 27, 23, 0.08);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
