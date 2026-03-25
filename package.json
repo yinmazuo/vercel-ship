@@ -1,7 +1,7 @@
 {
   "name": "vercel-ship",
   "version": "1.0.0",
-  "description": "Codex skill for turning project code or docs into a reviewable GitHub + Vercel release plan.",
+  "description": "Codex skill for generating reviewable GitHub + Vercel release plans with starter, capability, and service selection.",
   "license": "MIT",
   "repository": {
     "type": "git",
