@@ -1,5 +1,7 @@
 # vercel-ship
 
+[English](README.md) | [简体中文](README.zh-CN.md)
+
 `vercel-ship` is an open skill bundle for Codex-style agents that turns a deployment request into a controlled release workflow:
 
 - analyze a project or demo specification
