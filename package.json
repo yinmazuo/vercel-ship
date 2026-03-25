@@ -1,7 +1,7 @@
 {
   "name": "vercel-ship",
   "version": "1.0.0",
-  "description": "Open skill bundle for Codex-style agents that analyzes demo specs, recommends starters, provisions Vercel resources, and ships projects to GitHub and Vercel.",
+  "description": "Codex skill for turning project code or docs into a reviewable GitHub + Vercel release plan.",
   "license": "MIT",
   "repository": {
     "type": "git",
