@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-`vercel-ship` is an open skill bundle for Codex-style agents that turns a deployment request into a controlled release workflow:
+`vercel-ship` is a Codex skill that helps an agent turn project code or docs into a reviewable GitHub + Vercel release plan, then continue into deployment after approval:
 
 - analyze a project or demo specification
 - recommend a starter and capability set

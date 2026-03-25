@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-`vercel-ship` 是一个面向 Codex 风格 agent 的开源 skill bundle，用来把“部署一个项目”的请求转成一条可控、可审查、可验证的发布流程：
+`vercel-ship` 是一个 Codex skill，用来帮助 agent 根据项目代码或文档生成可审阅的 GitHub + Vercel 发布方案，并在批准后继续执行部署：
 
 - 分析项目或 demo 技术文档
 - 推荐合适的 starter 和能力组合
