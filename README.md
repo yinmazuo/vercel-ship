@@ -2,46 +2,143 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-`vercel-ship` is a Codex skill that helps an agent turn project code or docs into a reviewable GitHub + Vercel release plan, then continue into deployment after approval:
+`vercel-ship` is a delivery-oriented Codex skill that automatically generates a complete GitHub + Vercel release plan from project code or product docs, including starter, capability, and cloud service selection.
 
-- analyze a project or demo specification
-- recommend a starter and capability set
-- render an approval-ready plan
-- validate user edits
-- publish a starter to GitHub
-- create a Vercel project
-- provision real Vercel resources when required
-- verify the deployed result
+It lets an agent read project code or product docs, generate a reviewable GitHub + Vercel release plan, and only continue into real release actions after approval.
 
-The current first public version ships with three built-in demo scenarios:
+## When To Use It
+
+Use this skill when you need:
+
+- a default release plan before any cloud mutation happens
+- starter and capability recommendations from code or structured docs
+- a minimal GitHub + Vercel release path for demos or MVPs
+- a clear approval gate before repository, project, or resource creation
+
+The first version ships with three built-in demo scenarios:
 
 - `marketing-site`
 - `saas-mvp`
 - `upload-app`
 
-## What It Covers
+## What The Skill Covers
 
-`vercel-ship` currently supports:
+The current version supports:
 
-- starter recommendation from structured docs
-- local starter materialization and build validation
-- GitHub repository creation and file publishing
-- Vercel project creation
-- real `Neon` provisioning for database-backed demos
-- real `Clerk` provisioning for auth-backed demos
-- real `Blob` provisioning for upload demos
-- protected deployment verification through Vercel share links
-- runtime health checks for provisioned resources
+- inferring a scenario from structured docs
+- recommending a starter and capability set
+- generating an approval-ready release plan
+- validating user-edited plans
+- creating a GitHub repository and publishing a starter after approval
+- creating a Vercel project after approval
+- provisioning real `Neon`, `Clerk`, and `Blob` resources when needed
+- verifying protected deployments and runtime health
 
-## What It Does Not Yet Cover
+The current version does not cover:
 
-- custom domains
+- custom domain automation
 - monorepo project selection
-- production migration workflows
-- advanced enterprise SSO and compliance flows
-- full application-layer provider wiring beyond the current demo scope
+- production database migration
+- enterprise SSO / compliance workflows
+- broad application-layer provider wiring beyond the demo scope
 
-Resource provisioning is real. Application-layer business integration is still intentionally minimal.
+Resource provisioning is real. Application-layer integration is intentionally minimal.
+
+## How To Use This Skill
+
+This repository is meant to be installed and used as a skill, not treated primarily as a standalone command-line tool.
+
+Typical flow:
+
+1. Install or copy `vercel-ship` into your local Codex skills directory.
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Configure `GitHub MCP` and `Vercel MCP`.
+4. Provide the required environment variables in the shell used by the agent.
+5. Ask the agent to use `vercel-ship` with:
+   - a project path, or
+   - a design doc / PRD path, or
+   - a demo doc under `assets/demo-docs`
+6. Review the generated recommendation and approval plan.
+7. Only after approval should the skill continue into GitHub and Vercel mutations.
+
+Requests that fit this skill well look like:
+
+- "Use `vercel-ship` to generate a release plan from this PRD"
+- "Use `vercel-ship` and recommend the right starter and capabilities for this project"
+- "Use `vercel-ship` to produce an approval-ready GitHub + Vercel release plan"
+
+## MCPs And Environment
+
+The first version depends on two MCPs:
+
+- `GitHub MCP`
+- `Vercel MCP`
+
+Recommended official references:
+
+- GitHub MCP Server: https://github.com/github/github-mcp-server
+- GitHub Personal Access Token docs: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+- Vercel MCP: https://vercel.com/docs/ai-tooling/vercel-mcp
+- MCP overview: https://vercel.com/docs/mcp
+
+The agent shell also needs these environment variables:
+
+| Variable | Required | Purpose |
+| --- | --- | --- |
+| `GITHUB_TOKEN` | Yes | GitHub authentication and repository actions |
+| `GITHUB_OWNER` | Yes | Target GitHub user or organization |
+| `VERCEL_TOKEN` | Yes | Vercel authentication and project actions |
+| `VERCEL_TEAM_ID` | Yes | Team or personal scope id used by the Vercel API |
+| `VERCEL_SCOPE` | Needed for provisioning | Used by Vercel CLI integration provisioning flows |
+
+Use [.env.example](.env.example) as the template.
+
+Related docs:
+
+- Vercel Environment Variables: https://vercel.com/docs/environment-variables
+- Managing environment variables: https://vercel.com/docs/environment-variables/managing-environment-variables
+- Vercel Blob: https://vercel.com/docs/vercel-blob
+- Edge Config: https://vercel.com/docs/edge-config/get-started
+- Neon on Vercel Marketplace: https://vercel.com/marketplace/neon
+- Clerk on Vercel Marketplace: https://vercel.com/marketplace/clerk
+
+## Skill Workflow
+
+`vercel-ship` follows this workflow:
+
+1. Collect a project or doc input.
+2. Generate the default recommended plan.
+3. Explain the recommended starter, capabilities, assumptions, and risks.
+4. Produce an approval-ready summary.
+5. If the user edits the plan, validate the edited version.
+6. Materialize the starter locally and run build validation.
+7. Only after approval, perform GitHub and Vercel mutations.
+8. If real resources are enabled, provision them and verify the deployment.
+
+That approval boundary is part of the skill design:
+
+- Before approval: read-only analysis, plan generation, plan validation, local starter validation
+- After approval: repository creation, code publishing, Vercel project creation, resource injection, deployment
+
+## Demo Scenarios
+
+| Scenario | Recommended Starter | Default Capabilities | Notes |
+| --- | --- | --- | --- |
+| `marketing-site` | `nextjs-marketing-starter` | optional `edge-config` | landing pages, brand sites, content-first sites |
+| `saas-mvp` | `nextjs-saas-starter` | `clerk`, `neon`, optional `edge-config` | dashboard-style SaaS MVP |
+| `upload-app` | `nextjs-blob-upload-starter` | `blob`, optional `clerk` | upload, gallery, and media demos |
+
+Relevant references:
+
+- [references/demo-scenarios.md](references/demo-scenarios.md)
+- [references/starter-catalog.md](references/starter-catalog.md)
+- [references/decision-matrix.md](references/decision-matrix.md)
+- [references/validation-rules.md](references/validation-rules.md)
 
 ## Repository Layout
 
@@ -61,107 +158,28 @@ vercel-ship/
 └── scripts/
 ```
 
-## How To Use
+Suggested reading order:
 
-This repository is meant to be used as a Codex skill.
+1. [SKILL.md](SKILL.md)
+2. [references/demo-scenarios.md](references/demo-scenarios.md)
+3. [references/starter-catalog.md](references/starter-catalog.md)
+4. [references/decision-matrix.md](references/decision-matrix.md)
+5. [references/validation-rules.md](references/validation-rules.md)
 
-Typical flow:
+## About `scripts/`
 
-1. install `vercel-ship` into your Codex skills directory
-2. prepare the required MCPs and credentials
-3. ask the agent to use `vercel-ship` with your project path or a demo doc
-4. review the generated plan
-5. approve the plan
-6. let the agent continue into GitHub and Vercel actions
+The `scripts/` directory contains implementation entrypoints, validation helpers, and maintenance utilities for the skill.
 
-## Requirements
+The current scripts exist mainly to support:
 
-- Node.js `20+`
-- a Codex environment that supports local skills
-- a GitHub account that can create repositories
-- a Vercel account or team that can create projects and integrations
+- plan generation
+- approval-plan rendering
+- plan validation
+- starter materialization
+- local validation
+- cloud demo validation
 
-## Manual Prerequisites
-
-Before you use the skill for real cloud actions, prepare these items manually:
-
-- configure `GitHub MCP`
-- configure `Vercel MCP`
-- provide these environment variables in the shell used by the agent:
-  - `GITHUB_TOKEN`
-  - `GITHUB_OWNER`
-  - `VERCEL_TOKEN`
-  - `VERCEL_TEAM_ID`
-- if your Vercel CLI integration flow needs it, also provide:
-  - `VERCEL_SCOPE`
-
-The repository includes [.env.example](.env.example) as a template, but you are expected to fill in your own values locally.
-
-## Required MCPs
-
-- `GitHub MCP`
-- `Vercel MCP`
-
-These are the only MCPs required for the current first version.
-
-## Installation
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-The repository does not vendor `node_modules`.
-
-Install or copy the repository into your Codex skills directory as `vercel-ship`, then let the agent trigger it by name.
-
-## What The User Needs To Provide
-
-At minimum, the user should provide one of these:
-
-- a project path
-- a design doc or PRD path
-- a demo doc under `assets/demo-docs`
-
-For cloud execution, the user should also be ready to approve:
-
-- GitHub repository creation
-- GitHub code publishing
-- Vercel project creation
-- Vercel resource provisioning when required
-
-## Demo Scenarios
-
-### marketing-site
-
-- recommended starter: `nextjs-marketing-starter`
-- default capabilities: optional `edge-config`
-
-### saas-mvp
-
-- recommended starter: `nextjs-saas-starter`
-- default capabilities: `neon`, `clerk`, optional `edge-config`
-
-### upload-app
-
-- recommended starter: `nextjs-blob-upload-starter`
-- default capabilities: `blob`
-
-## Open Source Notes
-
-This repository is designed for public release:
-
-- no secrets are committed
-- no generated `.env.local` files are kept
-- no `node_modules` directory is included
-- validation records are sanitized and do not depend on live personal share URLs
-
-Before publishing:
-
-- verify your repository history does not contain credentials
-- rotate any tokens used during validation if they were ever exposed outside your machine
-- review cloud validation records and replace any organization-specific names if needed
+If you are maintaining this skill, or doing local validation and debugging, that is the right time to inspect `scripts/`.
 
 ## Validation
 
@@ -171,6 +189,21 @@ Two validation logs are included:
 - [records/cloud-validation-2026-03-25.md](records/cloud-validation-2026-03-25.md)
 
 The first covers local validation. The second covers real GitHub, Vercel, Blob, Neon, and Clerk provisioning.
+
+## Open Source Notes
+
+This repository is prepared for public release:
+
+- no secrets are committed
+- no generated `.env.local` files are kept
+- no `node_modules` directory is included
+- validation records are sanitized and do not depend on personal share URLs
+
+Before publishing, still verify:
+
+- repository history contains no credentials
+- any exposed tokens have been rotated
+- cloud validation records do not contain org-specific names or sensitive links
 
 ## License
 
