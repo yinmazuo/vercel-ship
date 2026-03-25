@@ -46,7 +46,7 @@ Resource provisioning is real. Application-layer integration is intentionally mi
 
 ## How To Use This Skill
 
-This repository is meant to be installed and used as a skill, not treated primarily as a standalone command-line tool.
+This repository is meant to be installed and used as a skill inside the agent workflow.
 
 Typical flow:
 
@@ -132,6 +132,20 @@ That approval boundary is part of the skill design:
 | `marketing-site` | `nextjs-marketing-starter` | optional `edge-config` | landing pages, brand sites, content-first sites |
 | `saas-mvp` | `nextjs-saas-starter` | `clerk`, `neon`, optional `edge-config` | dashboard-style SaaS MVP |
 | `upload-app` | `nextjs-blob-upload-starter` | `blob`, optional `clerk` | upload, gallery, and media demos |
+
+Current public demos:
+
+| Demo | Public URL | Current integration status |
+| --- | --- | --- |
+| Marketing | https://vercel-ship-demo-marketing.vercel.app | Marketing starter is live; currently uses fallback runtime content instead of a dedicated `Edge Config` |
+| SaaS | https://vercel-ship-demo-saas.vercel.app | `Clerk`, `Neon`, and `Edge Config` are connected and visible in the demo shell |
+| Upload | https://vercel-ship-demo-upload.vercel.app | `Blob` is connected; the public file-list and upload APIs are available |
+
+Current demo repositories:
+
+- Marketing: https://github.com/yinmazuo/vercel-ship-demo-marketing
+- SaaS: https://github.com/yinmazuo/vercel-ship-demo-saas
+- Upload: https://github.com/yinmazuo/vercel-ship-demo-upload
 
 Relevant references:
 

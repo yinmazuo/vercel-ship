@@ -8,13 +8,15 @@ import { fileURLToPath } from "node:url";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(scriptDir, "..");
 const vercelCli = join(repoRoot, "node_modules", ".bin", "vercel");
+const vercelApi = "https://api.vercel.com";
 
 function parseArgs(argv) {
   const args = {
     projectId: null,
     projectName: null,
     scope: process.env.VERCEL_SCOPE ?? null,
-    capabilities: []
+    capabilities: [],
+    edgeConfigId: null
   };
 
   for (let index = 2; index < argv.length; index += 1) {
@@ -30,6 +32,9 @@ function parseArgs(argv) {
       index += 1;
     } else if (current === "--capability") {
       args.capabilities.push(argv[index + 1]);
+      index += 1;
+    } else if (current === "--edge-config-id") {
+      args.edgeConfigId = argv[index + 1];
       index += 1;
     }
   }
@@ -75,7 +80,11 @@ function runCommand(command, { cwd, interactiveInput } = {}) {
     });
 
     child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
+      const text = chunk.toString();
+      stderr += text;
+      if (interactiveInput) {
+        interactiveInput(text, child.stdin);
+      }
     });
 
     child.on("close", (code) => {
@@ -86,6 +95,15 @@ function runCommand(command, { cwd, interactiveInput } = {}) {
       }
     });
   });
+}
+
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(`${options.method ?? "GET"} ${url} failed: ${response.status} ${text}`);
+  }
+  return text ? JSON.parse(text) : {};
 }
 
 async function getIntegrationResources(projectName, scope) {
@@ -104,6 +122,131 @@ async function getProjectEnvKeys(projectDir, scope) {
   const { stdout } = await runCommand(command, { cwd: projectDir });
   const json = JSON.parse(stdout.slice(stdout.indexOf("{")));
   return new Set((json.envs ?? []).map((entry) => entry.key));
+}
+
+function toEdgeConfigSlug(projectName) {
+  const slug = `${projectName}-flags`
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return slug.slice(0, 32).replace(/-+$/g, "") || "demo-flags";
+}
+
+async function listEdgeConfigs(teamId, token) {
+  const payload = await requestJson(`${vercelApi}/v1/edge-config?teamId=${encodeURIComponent(teamId)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  return payload.edgeConfigs ?? [];
+}
+
+function formatEdgeConfigChoices(edgeConfigs) {
+  if (edgeConfigs.length === 0) {
+    return "No existing Edge Configs found.";
+  }
+
+  return edgeConfigs.map((entry) => `- ${entry.slug} (${entry.id})`).join("\n");
+}
+
+async function upsertProjectEnv({ projectId, key, value }) {
+  return requestJson(
+    `${vercelApi}/v10/projects/${encodeURIComponent(projectId)}/env?teamId=${encodeURIComponent(process.env.VERCEL_TEAM_ID)}&upsert=true`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify([
+        {
+          key,
+          value,
+          type: "sensitive",
+          target: ["production", "preview"]
+        }
+      ])
+    }
+  );
+}
+
+async function provisionEdgeConfig({ projectId, projectName, scope, edgeConfigId }) {
+  const envKeys = await getProjectEnvKeys(ensureLinkedTempDir(projectId), scope);
+  if (envKeys.has("EDGE_CONFIG")) {
+    return { skipped: true, key: "EDGE_CONFIG" };
+  }
+
+  const edgeConfigs = await listEdgeConfigs(process.env.VERCEL_TEAM_ID, process.env.VERCEL_TOKEN);
+  let edgeConfig = null;
+
+  if (edgeConfigId) {
+    edgeConfig = edgeConfigs.find((entry) => entry.id === edgeConfigId);
+    if (!edgeConfig) {
+      throw new Error(
+        [
+          `Requested Edge Config not found: ${edgeConfigId}`,
+          "Available Edge Configs:",
+          formatEdgeConfigChoices(edgeConfigs)
+        ].join("\n")
+      );
+    }
+  } else {
+    const slug = toEdgeConfigSlug(projectName);
+    edgeConfig = edgeConfigs.find((entry) => entry.slug === slug) ?? null;
+
+    if (!edgeConfig) {
+      if (edgeConfigs.length > 0) {
+        throw new Error(
+          [
+            `Cannot create a new Edge Config for ${projectName}: account limit reached.`,
+            "Choose one of the existing Edge Configs to reuse explicitly, or delete an old one first.",
+            "Existing Edge Configs:",
+            formatEdgeConfigChoices(edgeConfigs),
+            `If you want to reuse one explicitly, rerun with --edge-config-id <id>.`
+          ].join("\n")
+        );
+      }
+
+      edgeConfig = await requestJson(
+        `${vercelApi}/v1/edge-config?teamId=${encodeURIComponent(process.env.VERCEL_TEAM_ID)}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ slug })
+        }
+      );
+    }
+  }
+
+  const tokenPayload = await requestJson(
+    `${vercelApi}/v1/edge-config/${encodeURIComponent(edgeConfig.id)}/token?teamId=${encodeURIComponent(process.env.VERCEL_TEAM_ID)}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.VERCEL_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ label: `${edgeConfig.slug}-read` })
+    }
+  );
+
+  const connectionString = `https://edge-config.vercel.com/${edgeConfig.id}?token=${tokenPayload.token}`;
+  await upsertProjectEnv({
+    projectId,
+    key: "EDGE_CONFIG",
+    value: connectionString
+  });
+
+  return {
+    skipped: false,
+    edgeConfigId: edgeConfig.id,
+    slug: edgeConfig.slug
+  };
 }
 
 function ensureLinkedTempDir(projectId) {
@@ -191,6 +334,8 @@ async function main() {
       results.clerk = await provisionClerk(args);
     } else if (capability === "blob") {
       results.blob = await provisionBlob(args);
+    } else if (capability === "edge-config") {
+      results.edgeConfig = await provisionEdgeConfig(args);
     }
   }
 

@@ -46,7 +46,7 @@
 
 ## 如何使用这个 Skill
 
-这个仓库的主要使用方式是“安装为 skill，然后让 agent 按 skill 工作流执行”。
+这个仓库的标准使用方式是“安装为 skill，然后让 agent 按 skill 工作流执行”。
 
 典型流程：
 
@@ -132,6 +132,20 @@ npm install
 | `marketing-site` | `nextjs-marketing-starter` | 可选 `edge-config` | 内容型 / 落地页 / 品牌站 |
 | `saas-mvp` | `nextjs-saas-starter` | `clerk`、`neon`，可选 `edge-config` | dashboard 风格 SaaS MVP |
 | `upload-app` | `nextjs-blob-upload-starter` | `blob`，按需 `clerk` | 上传 / 图库 / 媒体 demo |
+
+当前公开 demo：
+
+| Demo | 公开地址 | 当前接入状态 |
+| --- | --- | --- |
+| Marketing | https://vercel-ship-demo-marketing.vercel.app | 落地页 starter 已上线；当前使用 fallback 内容配置，未接入独立 `Edge Config` |
+| SaaS | https://vercel-ship-demo-saas.vercel.app | 已接通 `Clerk`、`Neon`、`Edge Config`，可展示认证壳、数据库检查与 feature flags |
+| Upload | https://vercel-ship-demo-upload.vercel.app | 已接通 `Blob`，公开文件列表与上传接口可用 |
+
+当前 demo 对应仓库：
+
+- Marketing: https://github.com/yinmazuo/vercel-ship-demo-marketing
+- SaaS: https://github.com/yinmazuo/vercel-ship-demo-saas
+- Upload: https://github.com/yinmazuo/vercel-ship-demo-upload
 
 对应参考资料：
 

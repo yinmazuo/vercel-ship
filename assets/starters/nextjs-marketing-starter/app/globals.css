@@ -28,6 +28,38 @@ main {
   padding: 48px 24px 96px;
 }
 
+.announcement {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  border-radius: 18px;
+  background: rgba(29, 27, 23, 0.08);
+}
+
+.announcement p,
+.announcement strong {
+  margin: 0;
+}
+
+.status {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.status.ok {
+  background: rgba(48, 133, 91, 0.14);
+}
+
+.status.warn {
+  background: rgba(196, 85, 43, 0.16);
+}
+
 .hero {
   display: grid;
   gap: 24px;
@@ -36,6 +68,14 @@ main {
   border-radius: 28px;
   background: var(--card);
   backdrop-filter: blur(14px);
+}
+
+.hero span,
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  color: rgba(29, 27, 23, 0.65);
 }
 
 .hero h1 {
@@ -79,6 +119,12 @@ main {
   margin-top: 28px;
 }
 
+.story-grid {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
 .card {
   padding: 20px;
   border-radius: 22px;
@@ -86,8 +132,51 @@ main {
   border: 1px solid rgba(29, 27, 23, 0.08);
 }
 
+.spotlight h2,
+.config-card h2,
+.roadmap h2 {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.stack {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.7;
+}
+
+.roadmap {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.66);
+  border: 1px solid rgba(29, 27, 23, 0.08);
+}
+
+.roadmap ol {
+  margin: 16px 0 0;
+  padding-left: 22px;
+  line-height: 1.8;
+}
+
+.error {
+  color: #8f2f11;
+  font-size: 0.95rem;
+}
+
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .story-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .announcement {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
