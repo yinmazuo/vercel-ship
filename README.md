@@ -49,7 +49,9 @@ Resource provisioning is real. Application-layer business integration is still i
 vercel-ship/
 ├── SKILL.md
 ├── README.md
+├── README.zh-CN.md
 ├── LICENSE
+├── docs/
 ├── agents/
 ├── assets/
 │   ├── demo-docs/
@@ -59,6 +61,15 @@ vercel-ship/
 └── scripts/
 ```
 
+## Usage Modes
+
+You can use this repository in two ways:
+
+- `script mode`: run the bundled Node.js scripts directly
+- `skill mode`: install the repository as a Codex skill and let the agent use the bundled references and scripts
+
+For first-time setup, start with [docs/getting-started.md](docs/getting-started.md).
+
 ## Requirements
 
 - Node.js `20+`
@@ -66,16 +77,44 @@ vercel-ship/
 - Vercel access token
 - A Vercel team or personal scope where projects and integrations can be created
 
+## Environment Variables
+
 Required environment variables for cloud actions:
 
 - `GITHUB_TOKEN`
+- `GITHUB_OWNER` or `--owner`
 - `VERCEL_TOKEN`
 - `VERCEL_TEAM_ID`
-- `GITHUB_OWNER` or `--owner`
 
 Optional:
 
 - `VERCEL_SCOPE`
+
+Use the included template:
+
+```bash
+cp .env.example .env.local
+export $(grep -v '^#' .env.local | xargs)
+```
+
+Variable meaning:
+
+- `GITHUB_TOKEN`: used by `ship_demo_to_cloud.mjs` to create repositories and commit starter files
+- `GITHUB_OWNER`: target GitHub user or organization
+- `VERCEL_TOKEN`: used by Vercel API and CLI actions
+- `VERCEL_TEAM_ID`: target Vercel team id or personal scope id
+- `VERCEL_SCOPE`: team slug or scope name used by Vercel CLI integration commands
+
+## MCP Requirements
+
+For direct script execution, no MCP is required.
+
+For agent-driven end-to-end usage, configure:
+
+- `GitHub MCP`
+- `Vercel MCP`
+
+See [docs/mcp-requirements.md](docs/mcp-requirements.md) for the exact split between script-only and agent-driven workflows.
 
 ## Install
 
@@ -86,6 +125,43 @@ npm install
 ```
 
 The repository intentionally does not vendor `node_modules`.
+
+## Quick Start
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Configure environment variables:
+
+```bash
+cp .env.example .env.local
+export $(grep -v '^#' .env.local | xargs)
+```
+
+3. Run local validation:
+
+```bash
+npm run validate:local
+```
+
+4. Generate a plan:
+
+```bash
+node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/marketing-site.md
+```
+
+5. Publish a demo starter when you are ready for cloud actions:
+
+```bash
+node scripts/ship_demo_to_cloud.mjs \
+  --doc assets/demo-docs/marketing-site.md \
+  --owner "$GITHUB_OWNER" \
+  --repo vercel-ship-demo-marketing \
+  --project vercel-ship-demo-marketing
+```
 
 ## Local Usage
 
@@ -172,3 +248,10 @@ The first covers local validation. The second covers real GitHub, Vercel, Blob, 
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Additional Reading
+
+- [docs/getting-started.md](docs/getting-started.md)
+- [docs/mcp-requirements.md](docs/mcp-requirements.md)
+- [docs/command-reference.md](docs/command-reference.md)
+- [docs/troubleshooting.md](docs/troubleshooting.md)

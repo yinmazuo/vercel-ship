@@ -16,7 +16,6 @@ Use this skill when:
 First-version scope:
 
 - scenarios: `marketing`, `saas`, `upload`
-- starter：`nextjs-marketing-starter`、`nextjs-saas-starter`、`nextjs-blob-upload-starter`
 - starters: `nextjs-marketing-starter`, `nextjs-saas-starter`, `nextjs-blob-upload-starter`
 - capabilities: `blob`, `edge-config`, `neon`, `clerk`
 - default strategy: prefer free starting plans and only enable capabilities supported by rules and detected facts

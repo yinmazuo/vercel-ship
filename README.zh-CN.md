@@ -51,6 +51,7 @@ vercel-ship/
 ├── README.md
 ├── README.zh-CN.md
 ├── LICENSE
+├── docs/
 ├── agents/
 ├── assets/
 │   ├── demo-docs/
@@ -60,6 +61,15 @@ vercel-ship/
 └── scripts/
 ```
 
+## 使用方式
+
+这个仓库有两种使用方式：
+
+- `script mode`：直接运行仓库内置的 Node.js 脚本
+- `skill mode`：把仓库安装成 Codex skill，让 agent 结合文档、脚本和 MCP 执行
+
+第一次使用建议先看 [docs/getting-started.md](docs/getting-started.md)。
+
 ## 运行要求
 
 - Node.js `20+`
@@ -67,16 +77,44 @@ vercel-ship/
 - Vercel access token
 - 一个可创建项目和集成的 Vercel team 或个人 scope
 
+## 环境变量
+
 执行云端动作时需要：
 
 - `GITHUB_TOKEN`
+- `GITHUB_OWNER` 或 `--owner`
 - `VERCEL_TOKEN`
 - `VERCEL_TEAM_ID`
-- `GITHUB_OWNER` 或 `--owner`
 
 可选：
 
 - `VERCEL_SCOPE`
+
+建议直接使用仓库里的模板：
+
+```bash
+cp .env.example .env.local
+export $(grep -v '^#' .env.local | xargs)
+```
+
+这些变量分别用于：
+
+- `GITHUB_TOKEN`：供 `ship_demo_to_cloud.mjs` 创建仓库并提交 starter 文件
+- `GITHUB_OWNER`：目标 GitHub 用户或组织
+- `VERCEL_TOKEN`：供 Vercel API 和 CLI 动作使用
+- `VERCEL_TEAM_ID`：目标 Vercel team id 或个人 scope id
+- `VERCEL_SCOPE`：供 Vercel CLI 集成命令使用的 team slug 或 scope 名称
+
+## 需要哪些 MCP
+
+如果你只是直接运行脚本，不需要 MCP。
+
+如果你希望 agent 走完整的“分析 -> 方案 -> 审批 -> GitHub -> Vercel -> 验证”链路，建议配置：
+
+- `GitHub MCP`
+- `Vercel MCP`
+
+具体说明见 [docs/mcp-requirements.md](docs/mcp-requirements.md)。
 
 ## 安装
 
@@ -87,6 +125,43 @@ npm install
 ```
 
 仓库不会提交 `node_modules`。
+
+## 快速开始
+
+1. 安装依赖：
+
+```bash
+npm install
+```
+
+2. 配置环境变量：
+
+```bash
+cp .env.example .env.local
+export $(grep -v '^#' .env.local | xargs)
+```
+
+3. 执行本地验证：
+
+```bash
+npm run validate:local
+```
+
+4. 生成方案：
+
+```bash
+node scripts/generate_recommended_plan.mjs --doc assets/demo-docs/marketing-site.md
+```
+
+5. 准备好执行云端动作后，发布 demo starter：
+
+```bash
+node scripts/ship_demo_to_cloud.mjs \
+  --doc assets/demo-docs/marketing-site.md \
+  --owner "$GITHUB_OWNER" \
+  --repo vercel-ship-demo-marketing \
+  --project vercel-ship-demo-marketing
+```
 
 ## 本地使用
 
@@ -173,3 +248,10 @@ node scripts/ship_demo_to_cloud.mjs \
 ## 许可证
 
 MIT，见 [LICENSE](LICENSE)。
+
+## 补充文档
+
+- [docs/getting-started.md](docs/getting-started.md)
+- [docs/mcp-requirements.md](docs/mcp-requirements.md)
+- [docs/command-reference.md](docs/command-reference.md)
+- [docs/troubleshooting.md](docs/troubleshooting.md)
